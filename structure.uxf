@@ -1,0 +1,17 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLGeneric</id><coordinates><x>860</x><y>390</y><w>110</w><h>80</h></coordinates><panel_attributes>symbol=artifact
+Database
+Main</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>850</x><y>690</y><w>140</w><h>80</h></coordinates><panel_attributes>symbol=component
+StockData</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>570</x><y>390</y><w>140</w><h>80</h></coordinates><panel_attributes>symbol=component
+StockWatch</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>510</x><y>240</y><w>110</w><h>80</h></coordinates><panel_attributes>symbol=artifact
+Websocket
+Finnhub</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>650</x><y>240</y><w>110</w><h>80</h></coordinates><panel_attributes>symbol=artifact
+Websocket
+Eodhd</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>850</x><y>860</y><w>140</w><h>80</h></coordinates><panel_attributes>symbol=component
+StockDisplay</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>700</x><y>410</y><w>180</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;-
+Writes Data</panel_attributes><additional_attributes>155;24;10;20</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>870</x><y>540</y><w>110</w><h>80</h></coordinates><panel_attributes>symbol=artifact
+Database
+Replica1</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>910</x><y>460</y><w>120</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-
+Replicates Data</panel_attributes><additional_attributes>15;14;10;80</additional_attributes></element><element><id>Relation</id><coordinates><x>630</x><y>310</y><w>140</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-
+Queries Data</panel_attributes><additional_attributes>75;14;10;80</additional_attributes></element><element><id>Relation</id><coordinates><x>550</x><y>310</y><w>110</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-
+Queries Data</panel_attributes><additional_attributes>15;14;90;80</additional_attributes></element><element><id>Relation</id><coordinates><x>910</x><y>610</y><w>110</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-
+Queries Data</panel_attributes><additional_attributes>15;14;10;80</additional_attributes></element></diagram>

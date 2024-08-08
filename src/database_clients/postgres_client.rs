@@ -1,15 +1,6 @@
-use postgres::{Client, NoTls};
+use postgres::{Client, NoTls, Row};
 
 use crate::value_store::credentials_store::CredentialsStore;
-
-pub struct DatabaseTradeModel {
-    pub first_trade:i64,
-    pub num_of_trades: i32,
-    pub volume_moved: i32,
-    pub avg_price:i64,
-    pub min_price:i64,
-    pub max_price:i64,
-}
 
 pub struct PostgresClient {
     client: Client,
@@ -36,7 +27,7 @@ impl PostgresClient {
     }
 
     pub fn get_all_tables(&mut self) -> Vec<String> {
-        let rows = match self.client.query("select table_name from information_schema.tables WHERE table_schema='public'", &[]){
+        let rows = match self.client.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public'", &[]){
             Ok(v) => v,
             Err(e) => panic!("Query is wrong: {}", e),
         };
@@ -53,5 +44,20 @@ impl PostgresClient {
         table_names.sort();
 
         table_names
+    }
+
+    pub fn get_most_recent_data(&mut self, stock: &str) -> Option<Row> {
+        let rows = match self.client.query(
+            &format!("SELECT * FROM trades_{} ORDER BY time DESC LIMIT 1", stock),
+            &[]
+        ){
+            Ok(v) => v,
+            Err(e) => panic!("Query is wrong: {}", e),
+        };
+
+        match rows.len() {
+            0 => None,
+            _ => Some(rows[0].clone())
+        }
     }
 }
