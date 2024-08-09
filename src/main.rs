@@ -5,7 +5,7 @@ use std::time::Duration;
 use std::collections::HashMap;
 
 use websocket::sync::Server;
-use websocket::{OwnedMessage};
+use websocket::{OwnedMessage, Message};
 use websocket::server::upgrade::WsUpgrade;
 
 mod database_clients;
@@ -26,28 +26,46 @@ fn main() {
 
     start_websocketserver(Arc::clone(&connection_queue), Arc::clone(&current_data));
 
-    loop {
-        thread::sleep(Duration::from_millis(1000));
+    let server = Server::bind("127.0.0.1:9003").unwrap();
 
-        let updated_data = data_service.check_for_updates();
+    for connection in server.filter_map(Result::ok) {
+        let mut client = connection.accept().unwrap();
+        let (mut receiver, mut sender) = client.split().unwrap();
 
-        if updated_data.len() == 0 { continue; }
+        for message in receiver.incoming_messages(){
+            let message:OwnedMessage = match message {
+                Ok(p) => p,
+                Err(e) => {
+                    println!("Error receiving message {} \n Closing Client", e);
+                    let _ = sender.send_message(&Message::close());
+                    break;
+                },
+            };
 
-        let iter_keys:Vec<usize> = connection_queue.read().unwrap().keys().copied().collect();
-        let mut connection_vec = connection_queue.write().unwrap();
+            match message {
+                OwnedMessage::Text(txt) => {
+                    let text: String = txt.parse().unwrap();
 
-        for update in updated_data {
-            let update_string = stockdata_to_json(update);
-
-            for key in iter_keys.iter() {
-                match connection_vec.get_mut(key) {
-                    Some(v) => v.push(update_string.clone()),
-                    None => continue,
-                };
+                    let iter_keys:Vec<usize> = connection_queue.read().unwrap().keys().copied().collect();
+                    let mut connection_vec = connection_queue.write().unwrap();
+    
+                    for key in iter_keys.iter() {
+                        match connection_vec.get_mut(key) {
+                            Some(v) => v.push(text.clone()),
+                            None => continue,
+                        };
+                    }
+                }
+                OwnedMessage::Close(_) => {
+                    let _ = sender.send_message(&Message::close());
+                    break;
+                }
+                OwnedMessage::Ping(data) => {
+                    sender.send_message(&OwnedMessage::Pong(data)).unwrap();
+                }
+                _ => (),
             }
         }
-
-        *current_data.write().unwrap() = data_service.get_stock_data_copy();
     }
 }
 
@@ -136,6 +154,8 @@ fn start_websocket(connection: WsUpgrade<std::net::TcpStream, Option<websocket::
             };
 
             for update in connection_vec.iter() {
+                println!("This is the update {} {}", thread_id, update.clone());
+
                 match sender.send_message(&OwnedMessage::Text(update.to_string())) {
                     Ok(v) => v,
                     Err(e) => { 
