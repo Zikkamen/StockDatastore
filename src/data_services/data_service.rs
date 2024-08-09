@@ -61,7 +61,7 @@ impl DataService {
         let mut stock_data_list = Vec::new();
 
         for stock in self.list_of_stocks.iter() {
-            let mut row = self.postgres_client.get_most_recent_data(stock);
+            let row = self.postgres_client.get_most_recent_data(stock);
 
             match row {
                 Some(p) =>{
