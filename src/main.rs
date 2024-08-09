@@ -57,6 +57,7 @@ fn stockdata_to_json(update: StockData) -> String {
             \"avg_price\": {}, 
             \"min_price\": {}, 
             \"max_price\": {}, 
+            \"volume_moved\": {}, 
             \"num_of_trades\": {}, 
             \"time\": {}
         }}",
@@ -64,6 +65,7 @@ fn stockdata_to_json(update: StockData) -> String {
         update.avg_price,
         update.min_price,
         update.max_price,
+        update.volume_moved,
         update.num_of_trades,
         update.time,
     )
