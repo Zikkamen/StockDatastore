@@ -51,7 +51,9 @@ fn main() {
     
                     for key in iter_keys.iter() {
                         match connection_vec.get_mut(key) {
-                            Some(v) => v.push(text.clone()),
+                            Some(v) => if v.len() < 1000 {
+                                v.push(text.clone());
+                            },
                             None => continue,
                         };
                     }
@@ -126,11 +128,11 @@ fn start_websocket(connection: WsUpgrade<std::net::TcpStream, Option<websocket::
             };
 
             if connection_vec.len() == 0 {
-                thread::sleep(Duration::from_millis(1000));
+                thread::sleep(Duration::from_millis(100));
 
                 ping_cnt += 1;
 
-                if ping_cnt == 10 {
+                if ping_cnt == 100 {
                     match sender.send_message(&OwnedMessage::Ping(thread_id.to_string().as_bytes().to_vec())) {
                         Ok(v) => v,
                         Err(e) => { 
