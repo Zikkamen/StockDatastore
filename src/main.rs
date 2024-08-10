@@ -92,7 +92,7 @@ fn stockdata_to_json(update: StockData) -> String {
 }
 
 fn start_websocketserver(connection_queue: Arc<RwLock<HashMap::<usize, Vec<String>>>>, current_data: Arc<RwLock<Vec<StockData>>>){
-    let server = Server::bind("127.0.0.1:9002").unwrap();
+    let server = Server::bind("localhost:9002").unwrap();
 
     thread::spawn(move || {
         let mut id:usize = 0;
