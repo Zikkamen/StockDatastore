@@ -26,10 +26,10 @@ fn main() {
 
     start_websocketserver(Arc::clone(&connection_queue), Arc::clone(&current_data));
 
-    let server = Server::bind("127.0.0.1:9003").unwrap();
+    let server = Server::bind("localhost:9003").unwrap();
 
     for connection in server.filter_map(Result::ok) {
-        let mut client = connection.accept().unwrap();
+        let client = connection.accept().unwrap();
         let (mut receiver, mut sender) = client.split().unwrap();
 
         for message in receiver.incoming_messages(){
@@ -92,12 +92,14 @@ fn stockdata_to_json(update: StockData) -> String {
 }
 
 fn start_websocketserver(connection_queue: Arc<RwLock<HashMap::<usize, Vec<String>>>>, current_data: Arc<RwLock<Vec<StockData>>>){
-    let server = Server::bind("localhost:9002").unwrap();
+    let server = Server::bind("localhost:9004").unwrap();
 
     thread::spawn(move || {
         let mut id:usize = 0;
 
         for connection in server.filter_map(Result::ok) {
+            if connection_queue.read().unwrap().len() > 100 { continue; }
+
             connection_queue.write().unwrap().insert(
                 id, 
                 current_data.read().unwrap().iter().map(|data| stockdata_to_json(data.clone())).collect()
@@ -128,11 +130,11 @@ fn start_websocket(connection: WsUpgrade<std::net::TcpStream, Option<websocket::
             };
 
             if connection_vec.len() == 0 {
-                thread::sleep(Duration::from_millis(100));
+                thread::sleep(Duration::from_millis(10));
 
                 ping_cnt += 1;
 
-                if ping_cnt == 100 {
+                if ping_cnt == 1000 {
                     match sender.send_message(&OwnedMessage::Ping(thread_id.to_string().as_bytes().to_vec())) {
                         Ok(v) => v,
                         Err(e) => { 
