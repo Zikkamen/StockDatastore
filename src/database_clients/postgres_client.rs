@@ -38,7 +38,7 @@ impl PostgresClient {
             let table_name: String = row.get("table_name");
             let split_names: Vec<&str> = table_name.split('_').collect();
 
-            table_names.push(split_names[1].to_string());
+            table_names.push(split_names[1].to_string().to_ascii_uppercase());
         }
 
         table_names.sort();
