@@ -23,12 +23,19 @@ fn main() {
     let mut data_service = DataService::new(credentials_store);
 
     let connection_queue = Arc::new(RwLock::new(HashMap::<usize, Vec<String>>::new()));
-    let current_data = Arc::new(RwLock::new(data_service.get_stock_data_copy()));
 
     let stock_list:Vec<String> = StockConfigReader::new().read_config();
-    let stock_list:String = stock_list.iter().fold(String::new(), |acc, stock| acc + stock + "|");
+    let stock_list_string:String = stock_list.iter().fold(String::new(), |acc, stock| acc + stock + "|");
 
-    start_websocketserver(Arc::clone(&connection_queue), Arc::clone(&current_data));
+    let mut current_data = Vec::new();
+
+    for stock in stock_list.clone().iter() {
+        current_data.push(stockname_to_json(format!("{} (01 Sec)", stock)));
+        current_data.push(stockname_to_json(format!("{} (10 Sec)", stock)));
+        current_data.push(stockname_to_json(format!("{} (60 Sec)", stock)));
+    }
+
+    start_websocketserver(Arc::clone(&connection_queue), current_data);
 
     let server = Server::bind("localhost:9003").unwrap();
 
@@ -36,7 +43,7 @@ fn main() {
         let client = connection.accept().unwrap();
         let (mut receiver, mut sender) = client.split().unwrap();
 
-        sender.send_message(&Message::text(&stock_list));
+        sender.send_message(&Message::text(&stock_list_string));
 
         for message in receiver.incoming_messages(){
             let message:OwnedMessage = match message {
@@ -77,27 +84,15 @@ fn main() {
     }
 }
 
-fn stockdata_to_json(update: StockData) -> String {
+fn stockname_to_json(name: String) -> String {
     format!("{{
-            \"name\": \"{}\", 
-            \"avg_price\": {}, 
-            \"min_price\": {}, 
-            \"max_price\": {}, 
-            \"volume_moved\": {}, 
-            \"num_of_trades\": {}, 
-            \"time\": {}
+            \"name\": \"{}\"
         }}",
-        update.name,
-        update.avg_price,
-        update.min_price,
-        update.max_price,
-        update.volume_moved,
-        update.num_of_trades,
-        update.time,
+        name,
     )
 }
 
-fn start_websocketserver(connection_queue: Arc<RwLock<HashMap::<usize, Vec<String>>>>, current_data: Arc<RwLock<Vec<StockData>>>){
+fn start_websocketserver(connection_queue: Arc<RwLock<HashMap::<usize, Vec<String>>>>, current_data: Vec<String>){
     let server = Server::bind("localhost:9004").unwrap();
 
     thread::spawn(move || {
@@ -108,7 +103,7 @@ fn start_websocketserver(connection_queue: Arc<RwLock<HashMap::<usize, Vec<Strin
 
             connection_queue.write().unwrap().insert(
                 id, 
-                current_data.read().unwrap().iter().map(|data| stockdata_to_json(data.clone())).collect()
+                current_data.clone(),
             );
 
             start_websocket(connection, Arc::clone(&connection_queue), id);
