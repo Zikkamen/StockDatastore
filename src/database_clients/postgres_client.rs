@@ -60,4 +60,21 @@ impl PostgresClient {
             _ => Some(rows[0].clone())
         }
     }
+
+    pub fn initialize_database(&mut self, list_of_stocks: &Vec<String>) -> Result<(), Box<dyn error::Error + 'static>> {
+        for stock in list_of_stocks.iter() {
+            self.client.batch_execute(format!("
+                CREATE TABLE IF NOT EXISTS Trades_{} (
+                    time    BIGINT PRIMARY KEY,
+                    num_of_trades INT,
+                    volume_moved INT,
+                    avg_price BIGINT,
+                    min_price BIGINT,
+                    max_price BIGINT
+                )
+            ", stock).as_str())?;
+        }
+
+        Ok(())
+    }
 }

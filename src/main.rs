@@ -14,8 +14,9 @@ mod file_reader;
 mod data_services;
 
 use crate::data_services::data_service::DataService;
-use crate::value_store::credentials_store::CredentialsStore;
 use crate::data_services::data_service::StockData;
+use crate::value_store::credentials_store::CredentialsStore;
+use crate::file_reader::stock_config_reader::StockConfigReader;
 
 fn main() {
     let credentials_store = CredentialsStore::new();
@@ -24,6 +25,9 @@ fn main() {
     let connection_queue = Arc::new(RwLock::new(HashMap::<usize, Vec<String>>::new()));
     let current_data = Arc::new(RwLock::new(data_service.get_stock_data_copy()));
 
+    let stock_list:Vec<String> = StockConfigReader::new().read_config();
+    let stock_list:String = stock_list.iter().fold(String::new(), |acc, stock| acc + stock + "|");
+
     start_websocketserver(Arc::clone(&connection_queue), Arc::clone(&current_data));
 
     let server = Server::bind("localhost:9003").unwrap();
@@ -31,6 +35,8 @@ fn main() {
     for connection in server.filter_map(Result::ok) {
         let client = connection.accept().unwrap();
         let (mut receiver, mut sender) = client.split().unwrap();
+
+        sender.send_message(&Message::text(&stock_list));
 
         for message in receiver.incoming_messages(){
             let message:OwnedMessage = match message {
