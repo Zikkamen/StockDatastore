@@ -1,3 +1,4 @@
+use std::error;
 use postgres::{Client, NoTls, Row};
 
 use crate::value_store::credentials_store::CredentialsStore;
