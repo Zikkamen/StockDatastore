@@ -30,9 +30,7 @@ fn main() {
     let mut current_data = Vec::new();
 
     for stock in stock_list.clone().iter() {
-        current_data.push(stockname_to_json(format!("{} (01 Sec)", stock)));
-        current_data.push(stockname_to_json(format!("{} (10 Sec)", stock)));
-        current_data.push(stockname_to_json(format!("{} (60 Sec)", stock)));
+        current_data.push(stockname_to_json(format!("{}", stock)));
     }
 
     start_websocketserver(Arc::clone(&connection_queue), current_data);
@@ -86,7 +84,8 @@ fn main() {
 
 fn stockname_to_json(name: String) -> String {
     format!("{{
-            \"name\": \"{}\"
+            \"si\": 1,
+            \"sn\": \"{}\",
         }}",
         name,
     )

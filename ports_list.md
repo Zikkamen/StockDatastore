@@ -7,4 +7,5 @@
 
 ## External Ports:
 
+9001: Websocket for stock information (StockMessenger)
 9002: Websocket for dashboard (StockMessenger)
