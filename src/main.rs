@@ -158,8 +158,6 @@ fn start_websocket(connection: WsUpgrade<std::net::TcpStream, Option<websocket::
             };
 
             for update in connection_vec.iter() {
-                println!("This is the update {} {}", thread_id, update.clone());
-
                 match sender.send_message(&OwnedMessage::Text(update.to_string())) {
                     Ok(v) => v,
                     Err(e) => { 
