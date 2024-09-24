@@ -131,7 +131,7 @@ fn start_websocket_receiver(mut receiver: WebSocket<TcpStream>,
             };
             
             if &stock_name[..] == "*" {
-                connection_queue.write().unwrap().insert(id, stock_information_cache.read().unwrap().get_stock_info_vec());
+                connection_queue.write().unwrap().insert(id, stock_information_cache.read().unwrap().get_entire_cache());
             }
 
             old_stock = stock_name;

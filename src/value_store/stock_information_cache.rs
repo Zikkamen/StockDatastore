@@ -73,7 +73,7 @@ impl StockInformationCache {
     pub fn add_json(&mut self, json_data: &str) -> String {
         let stock_info:StockInformation = parse_json_to_stock_info(json_data);
 
-        if stock_info.volume_moved != 0 && stock_info.stock_interval == 1 {
+        if stock_info.volume_moved != 0 && stock_info.stock_interval == 1 || !self.stock_info_map.contains_key(&stock_info.stock_name) {
             self.stock_info_map.insert(stock_info.stock_name.clone(), json_data.to_string());
         }
 
@@ -94,10 +94,6 @@ impl StockInformationCache {
         key.0
     }
 
-    pub fn get_stock_info_vec(&self) -> Vec<String> {
-        self.stock_info_map.values().map(|a| a.to_string()).collect()
-    }
-
     pub fn get_stock_names(&self) -> String {
         self.stock_history_map.keys()
             .filter(|(stock_name, interval)| *interval == 0)
@@ -107,6 +103,22 @@ impl StockInformationCache {
 
     pub fn has_key(&self, key: &String) -> bool {
         self.stock_info_map.contains_key(key)
+    }
+
+    pub fn get_entire_cache(&self) -> Vec<String> {
+        let mut cache_dump = Vec::<String>::new();
+
+        for json_data in self.stock_info_map.values().map(|a| a.to_string()).into_iter() {
+            cache_dump.push(json_data);
+        }
+
+        for stock_queue in self.stock_history_map.values().into_iter() {
+            for json_data in stock_queue.clone().into_iter() {
+                cache_dump.push(json_data);
+            }
+        }
+
+        cache_dump
     }
 }
 
