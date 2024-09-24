@@ -26,7 +26,7 @@ impl WebSocketServer {
         let subscriber_map = Arc::new(RwLock::new(HashMap::<String, HashSet<usize>>::new()));
 
         for stock_name in self.stock_list.clone().into_iter() {
-            stock_information_cache.write().unwrap().add_json(&format!("{{sn:{},si{}}}", stock_name, 0)[..]);
+            stock_information_cache.write().unwrap().add_json(&format!("{{sn:{},si{}}}", stock_name, 1)[..]);
         }
 
         let notification_server_out = NotificationServerOut::new(
