@@ -52,7 +52,11 @@ impl NotificationServerOut {
                     let stream_read = stream.unwrap();
                     let send_stream = stream_read.try_clone().unwrap();
 
-                    let websocket_read = accept(stream_read).unwrap();
+                    let websocket_read = match accept(stream_read) {
+                        Ok(v) => v,
+                        Err(e) => return,
+                    };
+                    
                     let websocket_send = WebSocket::from_raw_socket(send_stream, Role::Server, None);
         
                     connection_queue_cloned.write().unwrap().insert(id, Vec::new());
